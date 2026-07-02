@@ -17,6 +17,14 @@ Recent improvements include:
 - Project reorganised into `src/`
 - Copy-to-Clipboard support
 
+### Output formats
+
+The on-screen display and the **Copy** button provide the raw decimal expansion, making it easy to paste the digits directly into other applications.
+
+The **Save As** option produces a formatted text file with grouped digits and line numbers for improved readability.
+
+Future versions may provide both raw and formatted output options for either destination.
+
 ## Implemented Constants
 
 - π (Pi)
