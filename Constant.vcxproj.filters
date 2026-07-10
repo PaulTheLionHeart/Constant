@@ -57,7 +57,16 @@
     <ClCompile Include="src\Scroll.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Sqrt2.cpp">
+    <ClCompile Include="src\Apery.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Catalan.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ConstantData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sqrt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

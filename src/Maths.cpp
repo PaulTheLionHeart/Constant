@@ -50,6 +50,7 @@
 **     => MaxDiv may be increased to more than 3000 with doubles
 **     => ...
 */
+#include <windows.h>
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
@@ -116,49 +117,68 @@ void Sub (long n, long *x, long *y) {
 ** x = x*q.
 **  Like school multiplication with carry management
 */
-void Mul (long n, long *x, long q) {
-  long carry=0, xi, i;
-  for (i=n-1; i>=0; i--) {
-    xi  = x[i]*q;		
-    xi += carry;		
-    if (xi>=B) {
-      carry = xi/B;
-      xi -= (carry*B);
+void	Mul(long n, long *x, long q)
+    {
+    __int64 carry = 0;
+    __int64 xi;
+    long i;
+
+    for (i = n - 1; i >= 0; i--)
+	{
+	xi = (__int64)x[i] * (__int64)q;
+	xi += carry;
+
+	carry = xi / B;
+	x[i] = (long)(xi % B);
+	}
     }
-    else 
-      carry = 0;
-    x[i] = xi;
-	}  
-}
 /*
 ** Division of the big real x by the integer d 
 ** The result is y=x/d.
 **  Like school division with carry management
 **  d is limited to MaxDiv*MaxDiv.
 */
-void Div (long n, long *x, long d, long *y) {
-  long carry=0, xi, q, i;
-  for (i=0; i<n; i++) {
-    xi    = x[i]+carry*B;
-    q     = xi/d;
-    carry = xi-q*d;   
-    y[i]  = q;        
-  }  
-}
+void Div(long n, long *x, long d, long *y)
+    {
+    long i;
+    long carry = 0;
+
+    for (i = 0; i < n; i++)
+	{
+	__int64 xi;
+
+	xi = (__int64)x[i] +
+	    (__int64)carry * (__int64)B;
+
+	y[i] = (long)(xi / d);
+	carry = (long)(xi % d);
+	}
+    }
+
 /*
 ** Division of the big real x by the integer d 
 ** The result is x=x/d.
 **  Like school division with carry management
 */
-void DivX (long n, long *x, long d) {
-  long carry=0, xi, q, i;
-  for (i=0; i<n; i++) {
-    xi    = x[i]+carry*B;
-    q     = xi/d;
-    carry = xi-q*d;   
-    x[i]  = q;        
-  }  
-}
+
+void DivX(long n, long *x, long d)
+    {
+    long i;
+    long carry = 0;
+
+    for (i = 0; i < n; i++)
+	{
+	__int64 xi;
+
+	xi = (__int64)x[i] +
+	    (__int64)carry * (__int64)B;
+
+	x[i] = (long)(xi / d);
+
+	carry = (long)(xi % d);
+	}
+    }
+
 /*
 ** Find the arc cotangent of the integer p = arctan (1/p)
 **  Result in the big real x (size n)
@@ -229,3 +249,46 @@ void Print (long n, long *x, char *buffer)
 	}
     strcat_s (buffer, NbDigits*2-1, "\n");
     }
+
+/*
+** 64-bit versions for larger integer multipliers and divisors.
+** Used by some of the newer constant generators.
+*/
+
+/*
+** Multiplication of the big real x by the integer q
+** x = x*q.
+**  Like school multiplication with carry management
+*/
+void Mul64(long n, long *x, __int64 q)
+    {
+    __int64 carry = 0;
+
+    for (long i = n - 1; i >= 1; i--)
+	{
+	__int64 xi = (__int64)x[i] * q + carry;
+	carry = xi / B;
+	x[i] = (long)(xi % B);
+	}
+
+    x[0] = (long)((__int64)x[0] * q + carry);
+    }
+
+/*
+** Division of the big real x by the integer d
+** The result is x=x/d.
+**  Like school division with carry management
+*/
+
+void DivX64(long n, long *x, __int64 d)
+    {
+    __int64 carry = 0;
+
+    for (long i = 0; i < n; i++)
+	{
+	__int64 xi = (__int64)x[i] + carry * B;
+	x[i] = (long)(xi / d);
+	carry = xi % d;
+	}
+    }
+

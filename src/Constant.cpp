@@ -16,18 +16,14 @@
 
 extern	void PiMain (HWND hwnd, char *output, char *name, char *time);  
 extern	void PhiMain (HWND hwnd, char *output, char *name, char *time);  
-extern	void SqrtMain (HWND hwnd, char *output, char *name, char *time);  
-extern	void Log2Main (HWND hwnd, char *output, char *name, char *time);  
-extern	void Log3Main (HWND hwnd, char *output, char *name, char *time);  
-extern	void Log4Main (HWND hwnd, char *output, char *name, char *time);  
-extern	void Log5Main (HWND hwnd, char *output, char *name, char *time);  
-extern	void Log6Main (HWND hwnd, char *output, char *name, char *time);  
-extern	void Log7Main (HWND hwnd, char *output, char *name, char *time);  
-extern	void Log8Main (HWND hwnd, char *output, char *name, char *time);  
-extern	void Log9Main (HWND hwnd, char *output, char *name, char *time);  
-extern	void Log10Main (HWND hwnd, char *output, char *name, char *time);  
-extern	void eMain (HWND hwnd, char *output, char *name, char *time);  
-extern	void eFastMain (HWND hwnd, char *output, char *name, char *time);  
+extern	void SqrtMain (HWND hwnd, char *output, char *name, char *time, int index);
+extern	void LogMain (HWND hwnd, char *output, char *name, char *time, int index);
+extern	void eMain(HWND hwnd, char *output, char *name, char *time);
+extern	void eFastMain(HWND hwnd, char *output, char *name, char *time);
+extern	void CatalanMain(HWND hwnd, char *output, char *name, char *time);
+extern	void AperyMain(HWND hwnd, char *output, char *name, char *time);
+
+extern const struct ConstantInfo ConstantData[];
 
 extern	BOOL ScrollImage(HWND hwnd, int nScrollBar, WORD wScrollCode);
 extern	void InitializeScrollBars(HWND, RECT *, RECT *);
@@ -51,7 +47,9 @@ static	LOGFONT	lf;
 enum	JustifyKind	{LEFT, CENTRE, RIGHT, JUSTIFY};
 static	JustifyKind	Justification;
 
-long NbDigits = 10000;
+long	NbDigits = 10000;
+int	LogValue = 2;
+int	RootValue = 2;
 
 //#define min(a,b) (((a) < (b)) ? (a) : (b))
 //#define max(a,b) (((a) > (b)) ? (a) : (b))
@@ -238,43 +236,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				PiMain(hwnd, lpText, Name, Time);
 				break;
 			    case 1:
-				eMain(hwnd, lpText, Name, Time);
-				break;
-			    case 2:
-				eFastMain(hwnd, lpText, Name, Time);
-				break;
-			    case 3:
 				PhiMain(hwnd, lpText, Name, Time);
 				break;
+			    case 2:
+				eMain(hwnd, lpText, Name, Time);
+				break;
+			    case 3:
+				CatalanMain(hwnd, lpText, Name, Time);
+				break;
 			    case 4:
-				SqrtMain(hwnd, lpText, Name, Time);
+				AperyMain(hwnd, lpText, Name, Time);
 				break;
 			    case 5:
-				Log2Main(hwnd, lpText, Name, Time);
+				eFastMain(hwnd, lpText, Name, Time);
 				break;
 			    case 6:
-				Log3Main(hwnd, lpText, Name, Time);
+				SqrtMain(hwnd, lpText, Name, Time, RootValue);
 				break;
 			    case 7:
-				Log4Main(hwnd, lpText, Name, Time);
-				break;
-			    case 8:
-				Log5Main(hwnd, lpText, Name, Time);
-				break;
-			    case 9:
-				Log6Main(hwnd, lpText, Name, Time);
-				break;
-			    case 10:
-				Log7Main(hwnd, lpText, Name, Time);
-				break;
-			    case 11:
-				Log8Main(hwnd, lpText, Name, Time);
-				break;
-			    case 12:
-				Log9Main(hwnd, lpText, Name, Time);
-				break;
-			    case 13:
-				Log10Main(hwnd, lpText, Name, Time);
+				LogMain(hwnd, lpText, Name, Time, LogValue - 2);
 				break;
 			    }
 
@@ -350,6 +330,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
      }
 
 /**************************************************************************
+	Update fields in dialogue box
+**************************************************************************/
+
+void UpdateConstantDialog(HWND hDlg)
+    {
+    for (int i = 0; ConstantData[i].id != 0; i++)
+	{
+        if (IsDlgButtonChecked(hDlg, ConstantData[i].id))
+	    {
+            SetDlgItemText(hDlg, IDC_DESCRIPTION,  ConstantData[i].Description);
+            EnableWindow(GetDlgItem(hDlg, IDC_LOG_VALUE), ConstantData[i].EnableLog);
+            EnableWindow(GetDlgItem(hDlg, IDC_ROOT_VALUE), ConstantData[i].EnableSqrt);
+            break;
+	    }
+	}
+    }
+
+/**************************************************************************
 	Select Constant Dialog Box
 **************************************************************************/
 
@@ -369,48 +367,34 @@ INT_PTR CALLBACK    SelectConstantDlg (HWND hDlg, UINT message, WPARAM wParam, L
 			tempParam = IDC_PI;
 			break;
 		    case 1:
-			tempParam = IDC_E;
-			break;
-		    case 2:
-			tempParam = IDC_EFAST;
-			break;
-		    case 3:
 			tempParam = IDC_PHI;
 			break;
+		    case 2:
+			tempParam = IDC_E;
+			break;
+		    case 3:
+			tempParam = IDC_CATALAN;
+			break;
 		    case 4:
-			tempParam = IDC_SQRT2;
+			tempParam = IDC_APERY;
 			break;
 		    case 5:
-			tempParam = IDC_LOG2;
+			tempParam = IDC_EFAST;
 			break;
 		    case 6:
-			tempParam = IDC_LOG3;
+			tempParam = IDC_SQRT;
 			break;
 		    case 7:
-			tempParam = IDC_LOG4;
-			break;
-		    case 8:
-			tempParam = IDC_LOG5;
-			break;
-		    case 9:
-			tempParam = IDC_LOG6;
-			break;
-		    case 10:
-			tempParam = IDC_LOG7;
-			break;
-		    case 11:
-			tempParam = IDC_LOG8;
-			break;
-		    case 12:
-			tempParam = IDC_LOG9;
-			break;
-		    case 13:
-			tempParam = IDC_LOG10;
+			tempParam = IDC_LOG;
 			break;
 		    }
-		CheckRadioButton(hDlg, IDC_PI, IDC_LOG10, tempParam);
+		CheckRadioButton(hDlg, IDC_PI, IDC_LOG, tempParam);
 		SetFocus(GetDlgItem(hDlg, tempParam));
 		SetDlgItemInt(hDlg, IDC_NUMDIGITS, NbDigits, TRUE);
+		SetDlgItemInt(hDlg, IDC_LOG_VALUE, LogValue, TRUE);
+		SetDlgItemInt(hDlg, IDC_ROOT_VALUE, RootValue, TRUE);
+		UpdateConstantDialog(hDlg);
+
 	        return FALSE ;
 
 	  case WM_COMMAND:
@@ -418,75 +402,61 @@ INT_PTR CALLBACK    SelectConstantDlg (HWND hDlg, UINT message, WPARAM wParam, L
 //	        switch (wParam)
 		    {
 		    case IDC_PI:
-		    case IDC_E:
-		    case IDC_EFAST:
 		    case IDC_PHI:
-		    case IDC_SQRT2:
-		    case IDC_LOG2:
-		    case IDC_LOG3:
-		    case IDC_LOG4:
-		    case IDC_LOG5:
-		    case IDC_LOG6:
-		    case IDC_LOG7:
-		    case IDC_LOG8:
-		    case IDC_LOG9:
-		    case IDC_LOG10:
+		    case IDC_E:
+		    case IDC_CATALAN:
+		    case IDC_APERY:
+		    case IDC_EFAST:
+		    case IDC_SQRT:
+		    case IDC_LOG:
 		        switch ((int) LOWORD(wParam))
 			    {
 			    case IDC_PI:
 				temp = 0;
 				break;
-			    case IDC_E:
+			    case IDC_PHI:
 				temp = 1;
 				break;
-			    case IDC_EFAST:
+			    case IDC_E:
 				temp = 2;
 				break;
-			    case IDC_PHI:
+			    case IDC_CATALAN:
 				temp = 3;
 				break;
-			    case IDC_SQRT2:
+			    case IDC_APERY:
 				temp = 4;
 				break;
-			    case IDC_LOG2:
+			    case IDC_EFAST:
 				temp = 5;
 				break;
-			    case IDC_LOG3:
+			    case IDC_SQRT:
 				temp = 6;
 				break;
-			    case IDC_LOG4:
+			    case IDC_LOG:
 				temp = 7;
-				break;
-			    case IDC_LOG5:
-				temp = 8;
-				break;
-			    case IDC_LOG6:
-				temp = 9;
-				break;
-			    case IDC_LOG7:
-				temp = 10;
-				break;
-			    case IDC_LOG8:
-				temp = 11;
-				break;
-			    case IDC_LOG9:
-				temp = 12;
-				break;
-				break;
-			    case IDC_LOG10:
-				temp = 13;
 				break;
 			    }
 
-			CheckRadioButton(hDlg, IDC_PI, IDC_LOG10, (int) LOWORD(wParam));
+			UpdateConstantDialog(hDlg);
+			CheckRadioButton(hDlg, IDC_PI, IDC_LOG, (int) LOWORD(wParam));
 		        return TRUE ;
 		    case IDOK:
 			type = temp;
 			NbDigits = GetDlgItemInt(hDlg, IDC_NUMDIGITS, &bTrans, TRUE);
+			LogValue = GetDlgItemInt(hDlg, IDC_LOG_VALUE, &bTrans, TRUE);
+			RootValue = GetDlgItemInt(hDlg, IDC_ROOT_VALUE, &bTrans, TRUE);
 			if (NbDigits < 100)
 			    NbDigits = 100;
 			if (NbDigits % 100 != 0)
 			    NbDigits = ((NbDigits/100) + 1) * 100;	// round up to the nearest 100
+			if (LogValue < 2)
+			    LogValue = 2;
+			if (LogValue > 20)
+			    LogValue = 20;
+			if (RootValue < 2)
+			    RootValue = 2;
+			if (RootValue > 20)
+			    RootValue = 20;
 			EndDialog (hDlg, TRUE);
 			return TRUE;
 
@@ -673,7 +643,6 @@ INT_PTR CALLBACK    DisplayDlg (HWND hDlg, UINT message, WPARAM wParam, LPARAM l
      static short   nPosition, cxChar, cyChar, cyClient, xScroll, maxrows;
      int	    row;
      char	    data[200];
-     HWND	    hCtrl;
      SCROLLINFO	    ScrollInfo;
 
      switch (message)
@@ -691,7 +660,7 @@ INT_PTR CALLBACK    DisplayDlg (HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 		rect.top = ClientRect.top;
 		InitializeScrollBars(hDlg, &rect, &ClientRect);
 		ReleaseDC (hDlg, hdc);
-	        return FALSE;
+	        return TRUE;
 
 	  case WM_PAINT:
 	        {
@@ -724,10 +693,19 @@ INT_PTR CALLBACK    DisplayDlg (HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 		yPos = JustifyText(ps.hdc, Name, 100, 1 + yPos, &ClientRect, 16, LEFT, RGB(250,200,250));
 		for (i = row; i < NbDigits/50 && i < row + maxrows; i++)		// print time labels
 		    {
-		    sprintf_s(data, 150, "%10.10s  %10.10s  %10.10s  %10.10s  %10.10s  : %d", 
-				lpText + i * 50, lpText + i * 50 + 10, lpText + i * 50 + 20, lpText + i * 50 + 30, lpText + i * 50 + 40, (i+1)*50);
+		    if (i == 0)
+			{
+			sprintf_s(data, 150, "%11.11s  %10.10s  %10.10s  %10.10s  %10.10s : %d",
+			    lpText, lpText + 12,lpText + 22, lpText + 32, lpText + 42, 50);
+			yPos = JustifyText(ps.hdc, data, 100, 1 + yPos, &ClientRect, 16, LEFT, RGB(250, 250, 200));
+			}
+		    else
+			{
+			sprintf_s(data, 150, "%10.10s  %10.10s  %10.10s  %10.10s  %10.10s  : %d", 
+				    lpText + i * 50, lpText + i * 50 + 10, lpText + i * 50 + 20, lpText + i * 50 + 30, lpText + i * 50 + 40, (i+1)*50);
 
-		    yPos = JustifyText(ps.hdc, data, 100, 1 + yPos, &ClientRect, 16, LEFT, RGB(250,250,200));
+			yPos = JustifyText(ps.hdc, data, 100, 1 + yPos, &ClientRect, 16, LEFT, RGB(250,250,200));
+			}
 		    }
 		EndPaint(hDlg, &ps);
 		}
@@ -753,11 +731,6 @@ INT_PTR CALLBACK    DisplayDlg (HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 		  }
 	      break;
 
-	  case WM_SETFOCUS:
-		hCtrl = GetDlgItem (hDlg, IDC_SAVEAS);				// scroll buttons
-		SetFocus (hCtrl) ;
-		break;
-
 	  case WM_DESTROY :
 		EndDialog (hDlg, TRUE);
 		return FALSE;
@@ -766,6 +739,7 @@ INT_PTR CALLBACK    DisplayDlg (HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 	        switch ((int) LOWORD(wParam))
 		    {
 		    case IDOK:
+		    case IDCANCEL:
 			EndDialog (hDlg, TRUE);
 			return TRUE;
 		    case IDC_SAVEAS:

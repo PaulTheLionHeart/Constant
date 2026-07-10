@@ -270,8 +270,11 @@
     <ClInclude Include="src\resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Apery.cpp" />
     <ClCompile Include="src\BigInt.cpp" />
+    <ClCompile Include="src\Catalan.cpp" />
     <ClCompile Include="src\Constant.cpp" />
+    <ClCompile Include="src\ConstantData.cpp" />
     <ClCompile Include="src\e.cpp" />
     <ClCompile Include="src\eFast.cpp" />
     <ClCompile Include="src\FFT.cpp" />
@@ -281,7 +284,7 @@
     <ClCompile Include="src\Phi.cpp" />
     <ClCompile Include="src\Pi.cpp" />
     <ClCompile Include="src\Scroll.cpp" />
-    <ClCompile Include="src\Sqrt2.cpp" />
+    <ClCompile Include="src\sqrt.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\constant.bmp" />
